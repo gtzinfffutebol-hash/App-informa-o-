@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Portal de Notícias & Atualizações</title>
+    <!-- Ícones FontAwesome (Redes Sociais e Interface) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- VARIÁVEIS DE CORES (Vermelho, Preto, Dourado, Branco) --- */
+        :root {
+            --bg-main: #0d0d0d;
+            --bg-card: #171717;
+            --primary: #d4af37; /* Dourado */
+            --accent: #cc0000;  /* Vermelho */
+            --text-color: #ffffff; /* Branco */
+            --text-secondary: #cccccc;
+            --border-color: #333333;
+            
+            /* Cores Neon Admin */
+            --neon-red: #ff073a;
+            --neon-red-glow: rgba(255, 7, 58, 0.6);
+            --neon-black: #050505;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* --- CABEÇALHO --- */
+        header {
+            background: linear-gradient(180deg, #000000 0%, #1a1a1a 100%);
+            border-bottom: 2px solid var(--primary);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo-container h1 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .logo-container p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .social-header {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-link {
+            color: var(--text-color);
+            font-size: 1.5rem;
+            transition: color 0.3s, transform 0.3s;
+            text-decoration: none;
+        }
+
+        .social-link:hover {
+            color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .admin-btn-trigger {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 0 8px var(--neon-red-glow);
+        }
+
+        .admin-btn-trigger:hover {
+            background: var(--neon-red);
+            box-shadow: 0 0 15px var(--neon-red);
+        }
+
+        /* --- LAYOUT PRINCIPAL --- */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .section-title {
+            color: var(--primary);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 5px;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+        }
+
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .article-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .article-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .article-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .article-content {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .article-tag {
+            background-color: var(--accent);
+            color: white;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 3px;
+            align-self: flex-start;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .article-title {
+            font-size: 1.25rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .article-text {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            flex-grow: 1;
+        }
+
+        .article-date {
+            font-size: 0.8rem;
+            color: #777;
+            margin-top: 15px;
+        }
+
+        /* --- RODAPÉ --- */
+        footer {
+            background-color: #000000;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            color: var(--text-secondary);
+        }
+
+        /* --- MODAL DE LOGIN & PAINEL DE ADMIN (ESTILO NEON PRETO E VERMELHO) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: var(--neon-black);
+            border: 2px solid var(--neon-red);
+            box-shadow: 0 0 20px var(--neon-red-glow), inset 0 0 15px rgba(255, 7, 58, 0.15);
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 12px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            text-shadow: 0 0 8px var(--neon-red);
+        }
+
+        .close-modal:hover { 
+            color: var(--neon-red); 
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--neon-red);
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(255, 7, 58, 0.4);
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            background: #0d0d0d;
+            border: 1px solid var(--neon-red);
+            color: white;
+            border-radius: 5px;
+            box-shadow: inset 0 0 5px rgba(255, 7, 58, 0.2);
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--neon-red);
+            box-shadow: 0 0 10px var(--neon-red-glow), inset 0 0 8px var(--neon-red-glow);
+            outline: none;
+        }
+
+        .btn-submit {
+            background: var(--neon-red);
+            color: white;
+            font-weight: bold;
+            padding: 12px 20px;
+            border: 1px solid #ff4d6d;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            box-shadow: 0 0 10px var(--neon-red-glow);
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover { 
+            background: #cc0033; 
+            box-shadow: 0 0 20px var(--neon-red);
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #331a1a;
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: #120505;
+            border: 1px solid var(--neon-red);
+            color: #bbb;
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: var(--neon-red);
+            color: white;
+            border-color: var(--neon-red);
+            box-shadow: 0 0 10px var(--neon-red-glow);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .article-manager-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #120505;
+            border: 1px solid #330000;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+        }
+
+        .btn-delete {
+            background: var(--neon-red);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            box-shadow: 0 0 5px var(--neon-red-glow);
+        }
+        .btn-delete:hover {
+            box-shadow: 0 0 10px var(--neon-red);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CABEÇALHO -->
+    <header>
+        <div class="logo-container">
+            <h1 id="site-name-display">PORTAL NOTÍCIAS</h1>
+            <p id="site-sub-display">Atualizações em tempo real</p>
+        </div>
+
+        <!-- REDES SOCIAIS -->
+        <div class="social-header">
+            <a href="#" id="link-youtube" target="_blank" class="social-link" title="YouTube"><i class="fab fa-youtube"></i></a>
+            <a href="#" id="link-instagram" target="_blank" class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" id="link-tiktok" target="_blank" class="social-link" title="TikTok"><i class="fab fa-tiktok"></i></a>
+        </div>
+
+        <button class="admin-btn-trigger" onclick="openModal()"><i class="fas fa-user-shield"></i> Painel Admin</button>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="container">
+        <h2 class="section-title">Últimas Atualizações</h2>
+        <div class="articles-grid" id="articles-container">
+            <!-- Artigos carregados via JavaScript -->
+        </div>
+    </main>
+
+    <!-- RODAPÉ -->
+    <footer>
+        <p id="footer-text">&copy; 2026 Portal Notícias. Todos os direitos reservados.</p>
+    </footer>
+
+    <!-- MODAL (LOGIN E PAINEL ADMIN - NEON VERMELHO E PRETO) -->
+    <div class="modal-overlay" id="admin-modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            
+            <!-- TELA DE LOGIN -->
+            <div id="login-screen">
+                <h2 style="color: var(--neon-red); margin-bottom: 1.5rem; text-align: center; text-shadow: 0 0 10px var(--neon-red-glow);">Acesso Restrito Admin</h2>
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>E-mail de Login</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Senha</label>
+                        <input type="password" id="login-pass" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Entrar no Painel</button>
+                </form>
+            </div>
+
+            <!-- PAINEL ADMINISTRATIVO (APÓS LOGIN) -->
+            <div id="admin-dashboard" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 style="color: var(--neon-red); text-shadow: 0 0 8px var(--neon-red-glow);">Painel de Controle</h2>
+                    <button onclick="handleLogout()" style="background: transparent; border: 1px solid var(--neon-red); color: white; padding: 5px 10px; border-radius: 5px; cursor: pointer; box-shadow: 0 0 5px var(--neon-red-glow);">Sair</button>
+                </div>
+
+                <!-- ABAS DE NAVEGAÇÃO DO PAINEL -->
+                <div class="admin-tabs">
+                    <button class="tab-btn active" onclick="switchTab('tab-articles')">Gerenciar Artigos</button>
+                    <button class="tab-btn" onclick="switchTab('tab-social')">Redes Sociais</button>
+                    <button class="tab-btn" onclick="switchTab('tab-site')">Personalizar Site</button>
+                    <button class="tab-btn" onclick="switchTab('tab-account')">Minha Conta</button>
+                </div>
+
+                <!-- ABA 1: GERENCIAR ARTIGOS -->
+                <div id="tab-articles" class="tab-content active">
+                    <h3 style="color: white; margin-bottom: 10px;">Adicionar Novo Artigo</h3>
+                    <form onsubmit="handleAddArticle(event)">
+                        <div class="form-group">
+                            <label>Título do Artigo</label>
+                            <input type="text" id="art-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Categoria / Tag</label>
+                            <input type="text" id="art-tag" placeholder="Ex: FUTEBOL, NOTÍCIAS" required>
+                        </div>
+                        <div class="form-group">
+                            <label>URL da Imagem</label>
+                            <input type="url" id="art-image" placeholder="https://exemplo.com/imagem.jpg" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Conteúdo / Texto</label>
+                            <textarea id="art-text" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">Publicar Artigo</button>
+                    </form>
+
+                    <h3 style="color: white; margin-top: 2rem; margin-bottom: 10px;">Artigos Publicados</h3>
+                    <div id="admin-articles-list"></div>
+                </div>
+
+                <!-- ABA 2: REDES SOCIAIS -->
+                <div id="tab-social" class="tab-content">
+                    <h3 style="color: white; margin-bottom: 10px;">Links das Redes Sociais</h3>
+                    <form onsubmit="handleSaveSocials(event)">
+                        <div class="form-group">
+                            <label><i class="fab fa-youtube"></i> Link do YouTube</label>
+                            <input type="url" id="social-yt-input">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fab fa-instagram"></i> Link do Instagram</label>
+                            <input type="url" id="social-ig-input">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fab fa-tiktok"></i> Link do TikTok</label>
+                            <input type="url" id="social-tk-input">
+                        </div>
+                        <button type="submit" class="btn-submit">Salvar Redes Sociais</button>
+                    </form>
+                </div>
+
+                <!-- ABA 3: PERSONALIZAR SITE -->
+                <div id="tab-site" class="tab-content">
+                    <h3 style="color: white; margin-bottom: 10px;">Configurações Gerais</h3>
+                    <form onsubmit="handleSaveSiteInfo(event)">
+                        <div class="form-group">
+                            <label>Título Principal do Site</label>
+                            <input type="text" id="site-name-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Subtítulo do Site</label>
+                            <input type="text" id="site-sub-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Texto do Rodapé</label>
+                            <input type="text" id="site-footer-input">
+                        </div>
+                        <button type="submit" class="btn-submit">Salvar Alterações do Site</button>
+                    </form>
+                </div>
+
+                <!-- ABA 4: ALTERAR LOGIN E SENHA -->
+                <div id="tab-account" class="tab-content">
+                    <h3 style="color: white; margin-bottom: 10px;">Segurança da Conta Admin</h3>
+                    <form onsubmit="handleChangeCredentials(event)">
+                        <div class="form-group">
+                            <label>Novo E-mail de Login</label>
+                            <input type="email" id="new-email-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nova Senha</label>
+                            <input type="password" id="new-pass-input" required>
+                        </div>
+                        <button type="submit" class="btn-submit">Atualizar Login e Senha</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT / LÓGICA DE DADOS -->
+    <script>
+        // --- CHAVES DE CONFIGURAÇÃO INICIAIS ---
+        const DEFAULT_CREDENTIALS = {
+            email: "gtzinfffutebol@gmail.com",
+            pass: "dkmurilo2011"
+        };
+
+        const DEFAULT_SITE_DATA = {
+            name: "PORTAL NOTÍCIAS",
+            sub: "Atualizações em tempo real",
+            footer: "© 2026 Portal Notícias. Todos os direitos reservados.",
+            socials: {
+                youtube: "https://youtube.com",
+                instagram: "https://instagram.com",
+                tiktok: "https://tiktok.com"
+            }
+        };
+
+        const DEFAULT_ARTICLES = [
+            {
+                id: 1,
+                title: "Bem-vindo ao Novo Portal de Notícias",
+                tag: "DESTAQUE",
+                image: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&auto=format&fit=crop",
+                text: "Este é o seu primeiro artigo! Acesse o painel de administração no canto superior direito para adicionar, remover ou editar conteúdos.",
+                date: new Date().toLocaleDateString('pt-BR')
+            }
+        ];
+
+        // --- INICIALIZAÇÃO DE DADOS (LOCALSTORAGE) ---
+        function getCredentials() {
+            return JSON.parse(localStorage.getItem('admin_creds')) || DEFAULT_CREDENTIALS;
+        }
+
+        function getSiteData() {
+            return JSON.parse(localStorage.getItem('site_config')) || DEFAULT_SITE_DATA;
+        }
+
+        function getArticles() {
+            return JSON.parse(localStorage.getItem('site_articles')) || DEFAULT_ARTICLES;
+        }
+
+        // --- RENDERIZAR INTERFACE PRINCIPAL ---
+        function renderSite() {
+            const config = getSiteData();
+            const articles = getArticles();
+
+            // Renderizar Textos
+            document.getElementById('site-name-display').innerText = config.name;
+            document.getElementById('site-sub-display').innerText = config.sub;
+            document.getElementById('footer-text').innerText = config.footer;
+            document.title = config.name;
+
+            // Renderizar Social Links
+            document.getElementById('link-youtube').href = config.socials.youtube;
+            document.getElementById('link-instagram').href = config.socials.instagram;
+            document.getElementById('link-tiktok').href = config.socials.tiktok;
+
+            // Renderizar Artigos
+            const articlesContainer = document.getElementById('articles-container');
+            articlesContainer.innerHTML = '';
+
+            articles.forEach(art => {
+                const card = document.createElement('article');
+                card.className = 'article-card';
+                card.innerHTML = `
+                    <img src="${art.image}" alt="${art.title}" onerror="this.src='https://via.placeholder.com/600x400?text=Imagem+Indisponivel'">
+                    <div class="article-content">
+                        <span class="article-tag">${art.tag}</span>
+                        <h3 class="article-title">${art.title}</h3>
+                        <p class="article-text">${art.text}</p>
+                        <span class="article-date"><i class="far fa-clock"></i> ${art.date}</span>
+                    </div>
+                `;
+                articlesContainer.appendChild(card);
+            });
+        }
+
+        // --- GERENCIAMENTO DE MODAL E LOGIN ---
+        let isLoggedIn = false;
+
+        function openModal() {
+            document.getElementById('admin-modal').style.display = 'flex';
+            if (isLoggedIn) {
+                showDashboard();
+            } else {
+                document.getElementById('login-screen').style.display = 'block';
+                document.getElementById('admin-dashboard').style.display = 'none';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('admin-modal').style.display = 'none';
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const emailInput = document.getElementById('login-email').value;
+            const passInput = document.getElementById('login-pass').value;
+            const creds = getCredentials();
+
+            if (emailInput === creds.email && passInput === creds.pass) {
+                isLoggedIn = true;
+                showDashboard();
+            } else {
+                alert('E-mail ou senha incorretos!');
+            }
+        }
+
+        function handleLogout() {
+            isLoggedIn = false;
+            document.getElementById('login-screen').style.display = 'block';
+            document.getElementById('admin-dashboard').style.display = 'none';
+            document.getElementById('login-email').value = '';
+            document.getElementById('login-pass').value = '';
+        }
+
+        function showDashboard() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('admin-dashboard').style.display = 'block';
+            loadDashboardData();
+        }
+
+        // --- NAVEGAÇÃO DE ABAS DO PAINEL ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // --- CARREGAR DADOS NO PAINEL ---
+        function loadDashboardData() {
+            const config = getSiteData();
+            const creds = getCredentials();
+            const articles = getArticles();
+
+            // Redes sociais
+            document.getElementById('social-yt-input').value = config.socials.youtube;
+            document.getElementById('social-ig-input').value = config.socials.instagram;
+            document.getElementById('social-tk-input').value = config.socials.tiktok;
+
+            // Info Site
+            document.getElementById('site-name-input').value = config.name;
+            document.getElementById('site-sub-input').value = config.sub;
+            document.getElementById('site-footer-input').value = config.footer;
+
+            // Credenciais
+            document.getElementById('new-email-input').value = creds.email;
+            document.getElementById('new-pass-input').value = creds.pass;
+
+            // Lista de Artigos no Admin
+            const adminArticlesList = document.getElementById('admin-articles-list');
+            adminArticlesList.innerHTML = '';
+            articles.forEach(art => {
+                const item = document.createElement('div');
+                item.className = 'article-manager-item';
+                item.innerHTML = `
+                    <span><strong>${art.title}</strong> (${art.tag})</span>
+                    <button class="btn-delete" onclick="handleDeleteArticle(${art.id})"><i class="fas fa-trash"></i> Excluir</button>
+                `;
+                adminArticlesList.appendChild(item);
+            });
+        }
+
+        // --- AÇÕES DO ADMINISTRADOR ---
+
+        // 1. Adicionar Artigo
+        function handleAddArticle(e) {
+            e.preventDefault();
+            const articles = getArticles();
+
+            const newArt = {
+                id: Date.now(),
+                title: document.getElementById('art-title').value,
+                tag: document.getElementById('art-tag').value,
+                image: document.getElementById('art-image').value,
+                text: document.getElementById('art-text').value,
+                date: new Date().toLocaleDateString('pt-BR')
+            };
+
+            articles.unshift(newArt);
+            localStorage.setItem('site_articles', JSON.stringify(articles));
+
+            // Limpar formulário
+            document.getElementById('art-title').value = '';
+            document.getElementById('art-tag').value = '';
+            document.getElementById('art-image').value = '';
+            document.getElementById('art-text').value = '';
+
+            renderSite();
+            loadDashboardData();
+            alert('Artigo publicado com sucesso!');
+        }
+
+        // 2. Apagar Artigo
+        function handleDeleteArticle(id) {
+            if (confirm('Tem certeza que deseja excluir este artigo?')) {
+                let articles = getArticles();
+                articles = articles.filter(art => art.id !== id);
+                localStorage.setItem('site_articles', JSON.stringify(articles));
+                renderSite();
+                loadDashboardData();
+            }
+        }
+
+        // 3. Salvar Redes Sociais
+        function handleSaveSocials(e) {
+            e.preventDefault();
+            const config = getSiteData();
+            config.socials.youtube = document.getElementById('social-yt-input').value;
+            config.socials.instagram = document.getElementById('social-ig-input').value;
+            config.socials.tiktok = document.getElementById('social-tk-input').value;
+
+            localStorage.setItem('site_config', JSON.stringify(config));
+            renderSite();
+            alert('Links de Redes Sociais salvos!');
+        }
+
+        // 4. Salvar Info do Site
+        function handleSaveSiteInfo(e) {
+            e.preventDefault();
+            const config = getSiteData();
+            config.name = document.getElementById('site-name-input').value;
+            config.sub = document.getElementById('site-sub-input').value;
+            config.footer = document.getElementById('site-footer-input').value;
+
+            localStorage.setItem('site_config', JSON.stringify(config));
+            renderSite();
+            alert('Informações do site salvas!');
+        }
+
+        // 5. Alterar Login e Senha
+        function handleChangeCredentials(e) {
+            e.preventDefault();
+            const newEmail = document.getElementById('new-email-input').value;
+            const newPass = document.getElementById('new-pass-input').value;
+
+            const creds = { email: newEmail, pass: newPass };
+            localStorage.setItem('admin_creds', JSON.stringify(creds));
+            alert('Login e senha atualizados com sucesso! Utilize os novos dados no próximo acesso.');
+        }
+
+        // Inicializar o site ao carregar
+        window.onload = renderSite;
+    </script>
+</body>
+</html>
